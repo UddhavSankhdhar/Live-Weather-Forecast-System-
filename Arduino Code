@@ -1,0 +1,114 @@
+// Include Libraries
+#include "Arduino.h"
+#include "ACS712.h"
+#include "LDR.h"
+#include "LM35.h"
+
+
+// Pin Definitions
+#define ACS712_PIN_VO	A3
+#define LDR_PIN_SIG	A1
+#define LM35_PIN_VOUT	A5
+
+
+
+// Global variables and defines
+const int acs712calFactor = 509;
+#define THRESHOLD_ldr   100
+int ldrAverageLight;
+ACS712 acs712(ACS712_PIN_VO);
+LDR ldr(LDR_PIN_SIG);
+LM35 lm35(LM35_PIN_VOUT);
+
+
+
+const int timeout = 10000;       //define timeout of 10 sec
+char menuOption = 0;
+long time0;
+
+void setup() 
+{
+    
+    Serial.begin(9600);
+    while (!Serial) ; 
+    Serial.println("start");
+    
+    
+    acs712.calibrate(acs712calFactor);
+    ldrAverageLight = ldr.readAverage();
+    menuOption = menu();
+    
+}
+
+void loop() 
+{
+    
+    
+    if(menuOption == '1') {
+    // Current Sensor Module ACS712 - Test Code
+    //Get averaged current measurment.
+    float acs712Currrent  = acs712.getCurrent();
+    Serial.print(acs712Currrent); Serial.println(F(" [mA]"));
+
+    }
+    else if(menuOption == '2') {
+    // LDR (Mini Photocell) - Test Code
+    // Getting current light reading, substracting the ambient value to detect light changes
+    int ldrSample = ldr.read();
+    int ldrDiff = abs(ldrAverageLight - ldrSample);
+    Serial.print(F("Light Diff: ")); Serial.println(ldrDiff);
+
+    }
+    else if(menuOption == '3') {
+    // LM35DZ - Temperature Sensor - Test Code
+    //Get Measurment from LM35 temperature sensor.
+    float lm35TempC = lm35.getTempC();
+    Serial.print(F("Temp: ")); Serial.print(lm35TempC); Serial.println(F("[°C]"));
+
+    }
+    
+    
+    
+    if (millis() - time0 > timeout)
+    {
+        menuOption = menu();
+    }
+    
+}
+
+
+
+// Menu function for selecting the components to be tested
+// Follow serial monitor for instrcutions
+char menu()
+{
+
+    Serial.println(F("\nWhich component would you like to test?"));
+    Serial.println(F("(1) Acidity Of Rainwater"));
+    Serial.println(F("(2) Intensity of Sun"));
+    Serial.println(F("(3) Temperature"));
+    Serial.println(F("(menu) send anything else or press on board reset button\n"));
+    while (!Serial.available());
+
+    // Reading data from serial monitor if received
+    while (Serial.available()) 
+    {
+        char c = Serial.read();
+        if (isAlphaNumeric(c)) 
+        {
+            if(c == '1') 
+    			Serial.println(F("Now Testing Current Sensor Module ACS712"));
+    		else if(c == '2') 
+    			Serial.println(F("Now Testing LDR (Mini Photocell)"));
+    		else if(c == '3') 
+    			Serial.println(F("Now Testing LM35DZ - Temperature Sensor"));
+            else
+            {
+                Serial.println(F("illegal input!"));
+                return 0;
+            }
+            time0 = millis();
+            return c;
+        }
+    }
+}
