@@ -1,0 +1,659 @@
+#include<fstream.h>
+#include<string.h>
+#include<conio.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<dos.h>
+# define ESC 27
+# define ENTER 13
+# define RIGHT 77
+
+#define FILE  if(!s)   {  cout<<"*ERROR*";    exit(0);  }
+void box(int);
+void row(int,int,int);
+void plan_your_day();
+int query_pin;
+int Temp=0,Int=0,Acid=0;
+
+class details
+{
+ protected:
+ int project_code,project_pin;
+ char name[30];
+ public:
+ void ask_query();
+ void getdetails();
+ void displaydetails();
+ void dispdetails();
+ char *getname()
+ {
+ return name;
+ }
+ int getpin()
+ {
+ return project_pin;
+ }
+ }d;
+struct query :public details
+{
+char query[100];
+char answer[200];
+int acc_pin;
+
+   query()
+  {
+   strcpy(query,"No query");
+   strcpy(answer,"Not Answered");
+   acc_pin = 0;
+  }
+
+ int ask_query(char q[],int acc_pin);
+}q;
+
+  int check_file_existence(ifstream &s)
+ {
+  FILE   /*!!THis is a MACRO!*/
+  return 1;
+ }
+  int check_file_existence(fstream &s)
+ {
+  FILE   /*!!THis is a MACRO!*/
+  return 1;
+ }
+  int check_file_existence(ofstream &s)
+ {
+  FILE   /*!!THis is a MACRO!*/
+  return 1;
+ }
+
+  long check_if_pin_exists_in_query_file_or_not(int pin)
+ {
+   ifstream Q("QUERY.TXT");
+   check_file_existence(Q);
+   while(!Q.eof())
+   {
+    Q.read((char*)&q,sizeof(q));
+      if(q.acc_pin==pin)
+     {
+      int address = Q.tellg();
+      Q.close();
+      return address - sizeof(query);
+     }
+   }
+   Q.close();
+   return -1;
+ }
+  long check_if_pin_is_already_taken(int the_pin_to_be_checked)
+ {
+   ifstream D ("DETAILS.DAT");
+   details x;
+
+     while(!D.eof())
+    {
+     D.read((char*)&x,sizeof(x));
+     if(x.getpin() == the_pin_to_be_checked)
+     {
+      int address = D.tellg();
+      D.close();
+      return address-sizeof(x);
+     }
+    }
+  D.close();
+  return -1;
+ }
+
+  int query::ask_query(char q[],int pin)
+ {
+   gotoxy(20,15);cprintf("\nBut before that, re-enter your pin\n");
+   gotoxy(20,17);cin>>pin;
+    if(query_pin==pin)
+    {
+    //if(check_if_pin_is_already_taken(pin)+1)
+    //{
+    //if(check_if_pin_exists_in_query_file_or_not(pin)+1)
+    //{
+     gotoxy(5,17);cprintf("Type your query (The team would respond within 3-5 business days\n");
+     gotoxy(5,18);gets(q);
+     gotoxy(5,19);cout<<"Entered query is: "<<q;
+     gotoxy(5,21);cprintf("Press ENTER to submit");
+    }
+    else
+     cout<<"*WRONG PIN*\n";
+    //}
+    //else
+    // cout<<"*WRONG PIN*\n";
+    //}
+   //  else
+    // cout<<"*WRONG PIN*\n";
+
+  getch();
+  return 1;
+}
+
+/*int answer_query()
+{
+  cout<<"Enter your name and pin";
+   gets(name);cin>>acc_pin;
+   ifstream pin("DETAILS.DAT");
+   while(!pin.eof())
+   {
+    pin.read((char*)&d,sizeof(d));
+    if(d.getpin()==acc_pin)
+    {
+     clrscr();
+     cout<<"The query posted is: ";
+     ifstream.QA("QUERY.TXT");
+     char line[80];
+     while(!QA.eof())
+     QA.getline(line,80);
+     cout<<line;
+     QA.close();
+     cout<<"Click 'a' to answer the query";
+
+ */
+void signup()
+{
+   fstream fin;
+   fin.open("DETAILS.DAT",ios::in|ios::out|ios::app);
+   check_file_existence(fin);
+   int times=0;
+   re_enter:
+   gotoxy(1,2);
+   box(0); // lag in seconds
+   row(5,YELLOW,0);
+   gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+   d.getdetails();
+     if(check_if_pin_is_already_taken(d.getpin())+1) //I am returning -1, if found to exist already , and to make the if condtion false, I need a zero
+     {
+       if(times>1)
+      {
+       gotoxy(15,15);cprintf("Try your luck next time !");
+       getch();
+       exit(0);
+      }
+      gotoxy(5,15);cprintf("\n*ERROR* \nThe pin you have entered has already been taken\n");
+      gotoxy(5,15);cprintf("Try to create a new account with a different pin\n");
+      getch();
+      times++;
+      goto re_enter;
+     }
+      fin.write((char*)&d,sizeof(d));
+      fin.close();
+      gotoxy(20,20);cprintf("You have become a member");
+      getch();
+}
+
+
+void details::getdetails()
+
+{
+gotoxy(10,10);cprintf("Enter name -");gets(name);
+gotoxy(10,11);cprintf("Enter project code -");cin>>project_code;
+gotoxy(10,12);cprintf("Enter project pin -");cin>>project_pin;
+}
+void details::displaydetails()
+{
+gotoxy(20,18);cprintf("User Name -");cout<<name;
+gotoxy(20,19);cprintf("Project code -");cout<<project_code;
+gotoxy(20,20);cprintf("Project pin -");cout<<project_pin;
+}
+void details::dispdetails()
+{
+gotoxy(20,6);cprintf("User Name -");cout<<name;
+gotoxy(20,7);cprintf("Project code -");cout<<project_code;
+gotoxy(20,8);cprintf("Project pin -");cout<<project_pin;
+}
+
+void accdetails()
+{
+   int pin,address;
+   gotoxy(20,17);cprintf("Enter the project pin ");cin>>pin;
+   fstream fout;
+   fout.open("DETAILS.DAT",ios::in|ios::binary);
+   check_file_existence(fout);
+   address = check_if_pin_is_already_taken(pin);
+    if(address == -1)
+   {
+    gotoxy(20,18);cprintf("*INCORRECT PIN*");
+    getch();
+    return ;
+   }
+    fout.seekg(address);
+    fout.read((char*)&d,sizeof(d));
+    d.displaydetails();
+  getch();
+}
+int login()
+{
+    int pin;
+    gotoxy(20,18);cprintf("Enter the project pin -");cin>>pin;
+    query_pin=pin;
+    if(check_if_pin_is_already_taken(pin)+1)
+    return 1;
+    gotoxy(22,19);cprintf("*INVALID PIN*\n");
+    getch();
+    return 0;
+}
+  int get_high_sec_pass()
+ {
+  char pss[15];
+  gotoxy(20,18);cprintf("Enter admin password- ");
+  int i=0;
+   while(i<14)
+  {
+   pss[i]=getch();
+   if(pss[i] == 13)
+   break;
+   cout<<"*";
+   ++i ;
+  }
+   pss[i]='\0';
+
+  return strcmp(pss,"uddhav11302001")==0;
+ }
+
+ void admin()
+{
+     fstream fout;
+     fout.open("DETAILS.DAT",ios::in|ios::binary);
+     check_file_existence(fout);
+      fstream QA("QUERY.TXT",ios::in|ios::out);
+
+
+    if(get_high_sec_pass())
+   {
+      check_file_existence(QA);
+      char GETCH=RIGHT;
+
+	 while(!fout.eof()&&GETCH!=ESC)
+	{
+	 clrscr();
+	 box(0);
+	 row(5,YELLOW,0);
+	 gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+	      if(GETCH==RIGHT)
+	    {
+	       fout.read((char*)&d,sizeof(d));
+		if(!fout.eof()) d.dispdetails();
+	    }
+	     else if(GETCH==ENTER)
+	    {
+		 int address = check_if_pin_exists_in_query_file_or_not(d.getpin());
+		 // cout<<address<<endl;
+		 QA.seekg(address);
+		 QA.read((char*)&q,sizeof(q));
+
+		   char choose;
+		   if(address==-1)
+		   {
+		    gotoxy(20,7);cprintf("No query, in this name\n");
+		     goto end;
+		   }
+		    gotoxy(20,15);cprintf("The query posted is: \n");
+		    cout<<q.query<<endl;
+		     gotoxy(20,18);cprintf("Press ENTER to answer the query\n Press ESC to skip\n");
+
+		       choose = getch();
+
+			 if(choose  == ENTER)
+			{
+			  cin>>q.answer;
+			  QA.seekp(-sizeof(q),ios::cur);
+			  QA.write((char*)&q,sizeof(q));
+			}
+			 else
+			 cout<<"\n*ALERT*\nYou have not responded to the query\n ";
+	      end:
+	    }
+
+	   gotoxy(15,10);cprintf("Click Right to go to the next query");
+	   gotoxy(15,11);cprintf("Press ENTER, to answer the individual's query (if any)");
+	   gotoxy(15,12);cprintf("Press ESCAPE to exit");
+	   GETCH=getch();
+	}
+
+   }
+   else
+   {
+   cout<<" *WRONG ADMIN PASSWORD*";
+   getch();
+   }
+
+   QA.close();
+   fout.close();
+
+}
+
+ void box (int lag)         // Lag gives you a slow-mo effect
+ {
+    textcolor(CYAN);
+    lag*=100;
+
+    cprintf("É");
+
+    for(int i=0;i<78;i++)
+    {
+     delay(lag/178);
+     cprintf("Í");
+    }                               //ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»
+
+    cprintf("»");
+
+
+     for(i=0;i<21;i++)              //º                 º
+    {                               //º                 º
+      cprintf("º"); delay(lag/89);  //º                 º
+				    //º                 º
+       for(int j=0;j<78;j++)        //º                 º
+	 cprintf(" ");	      	    //º                 º
+				    //º                 º
+      cprintf("º"); delay(lag/89);  //º                 º
+    }
+
+
+      cprintf("È");
+
+      for( i=0;i<78;i++)            //ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼
+   {
+    delay(lag/178);
+    cprintf("Í");
+   }
+
+      cprintf("¼");
+ }
+   void row(int y_coordinate,int color,int lag = 0)
+  {
+   gotoxy(1,y_coordinate);
+   textcolor(color);
+   cprintf("Ì");
+   for(int i = 0 ;i<78;i++)
+   {
+    cprintf("Í");
+    delay(lag*1000/78);
+   }
+   cprintf("¹");
+  }
+
+ void access()
+{
+block:
+clrscr();
+box(0);
+row(5,WHITE,0);
+gotoxy(25,3);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+gotoxy(30,1);cout<<"STATUS: ONLINE";
+gotoxy(20,6);cout<<"1.Plan your day\n";
+gotoxy(20,8);cout<<"2.Query";
+gotoxy(20,10);cout<<"3.Sign out\n";
+char x = getch();
+
+   switch(x)
+  {
+    case '1':
+    plan_your_day();
+    getch();
+    break;
+    case '2':
+    gotoxy(20,15);
+    cprintf("If you have any query, ask me\n");
+    char qQ[100];
+    int qP;
+    q.ask_query(qQ,qP);
+    strcpy(q.query,qQ);
+    q.acc_pin=qP;
+    ofstream QA("QUERY.TXT",ios::app);
+    check_file_existence(QA);
+    QA.write((char*)&q,sizeof(q));
+    QA.close();
+    break;
+    case '3':
+    gotoxy(34,17);cprintf("SIGNED OUT\n");
+    gotoxy(23,19);cprintf("Press ENTER to go to main menu\n");
+    getch();
+    return;
+    default:
+    gotoxy(25,15);cout<<"*INVALID OPTION*\n";
+    break;
+  }
+    goto block;
+}
+void plan_your_day()
+{
+retry:
+clrscr();
+
+void VLOW(int,int,int);
+void LOW(int,int,int);
+void MODERATE(int,int,int);
+void HIGH(int,int,int);
+void VHIGH(int,int,int);
+
+box(0); // lag in seconds
+row(5,YELLOW,0);
+gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+gotoxy(10,7);cprintf("WE WILL HELP YOU PLAN YOUR DAY");
+
+randomize();
+
+ switch(random(7)+1)
+{
+case 1:
+gotoxy(5,9);cprintf("Those who have knowledge, don't predict.");gotoxy(5,10);cprintf("Those who predict, don't have knowledge. ");
+gotoxy(5,11);cprintf("--Lao Tzu, 6th Century BC Chinese Poet");
+break;
+case 2:
+gotoxy(5,9);cprintf("I have seen the future and it is very much like the present,");gotoxy(5,10);cprintf("only longer.");
+gotoxy(5,11);cprintf("--Kehlog Albran, The Profit");
+break;
+case 3:
+gotoxy(5,9);cprintf("Prediction is very difficult, especially if it's about the future.");
+gotoxy(5,10);cprintf("--Nils Bohr, Nobel laureate in Physics");
+break;
+case 4:
+gotoxy(5,9);cprintf("Some things are so unexpected that no one is prepared for them. ");
+gotoxy(5,10);cprintf("--Leo Rosten in Rome Wasn't Burned in a Day");
+break;
+case 5:
+gotoxy(5,9);cprintf("An unsophisticated forecaster uses statistics as a drunken man uses"); gotoxy(5,10);cprintf("lamp posts - for support rather than for illumination. ");
+gotoxy(5,11);cprintf("--After Andrew Lang");
+break;
+case 6:
+gotoxy(5,9);cprintf("A good forecaster is not smarter than everyone else,");gotoxy(5,10);cprintf("he merely has his ignorance better organised. ");
+gotoxy(5,11);cprintf("--Anonymous");
+break;
+case 7:
+gotoxy(5,9);cprintf("To expect the unexpected shows a thoroughly modern intellect. ");
+gotoxy(5,10);cprintf("--Oscar Wilde");
+break;
+}
+gotoxy(7,13);cprintf("Enter the Teperature -");cin>>Temp;
+gotoxy(7,14);cprintf("Enter the Intensity of Sun -");cin>>Int;
+gotoxy(7,15);cprintf("Enter the Acidity of Rain Water -");cin>>Acid;
+
+if((Int>=0)&&(Int<=1000))
+{
+if((Acid>0)&&(Acid<15))
+{
+if((Temp>=0)&&(Temp<=20))
+VLOW(Temp,Int,Acid);
+else if((Temp>=20)&&(Temp<=25))
+LOW(Temp,Int,Acid);
+else if((Temp>=25)&&(Temp<=35))
+MODERATE(Temp,Int,Acid);
+else if((Temp>=35)&&(Temp<=45))
+HIGH(Temp,Int,Acid);
+else if((Temp>=45)&&(Temp<=50))
+VHIGH(Temp,Int,Acid);
+else
+{
+gotoxy(20,20);
+cprintf("*ERROR*");
+getch();
+goto retry;
+}
+}
+else
+{
+gotoxy(20,20);
+cprintf("*ERROR*");
+getch();
+goto retry;
+}
+}
+else
+{
+gotoxy(20,20);
+cprintf("*ERROR*");
+getch();
+goto retry;
+}
+}
+void VLOW(int Temp,int Int,int Acid)
+{
+ clrscr();
+ box(0); // lag in seconds
+ row(5,YELLOW,0);
+ gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+ gotoxy(7,8);cprintf("Things you have to do, in order to have a blast!!");
+  if(Acid<14)
+ {
+ gotoxy(5,10);
+ cprintf("-> It's raining out there, carry an umbrella with you.");
+ }
+ gotoxy(5,11);cprintf("-> Wear a thick coat with a pair of gloves and a woolen cap. ");
+ gotoxy(5,12);cprintf("-> Activity- Sleep,Eat and Workout!");
+}
+void LOW(int Temp,int Int,int Acid)
+{
+ clrscr();
+ box(0); // lag in seconds
+ row(5,YELLOW,0);
+ gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+ gotoxy(7,8);cprintf("Things you have to do, in order to have a blast!!");
+  if(Acid<14)
+ {
+ gotoxy(5,10);
+ cprintf("-> It's raining out there, carry an umbrella with you.");
+ }
+ gotoxy(5,11);cprintf("-> Wear a coat (preferably woolen).");
+ gotoxy(5,12);cprintf("-> Activity- Workout,Travelling(If it's not raining).");
+
+}
+void MODERATE(int Temp,int Int,int Acid)
+{
+ clrscr();
+ box(0); // lag in seconds
+ row(5,YELLOW,0);
+ gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+ gotoxy(7,9);cprintf("Things you have to do, in order to have a blast!!");
+  if(Acid<14)
+ {
+ gotoxy(5,11);
+ cprintf("-> It's raining out there, carry an umbrella with you.");
+ }
+  if(Int>600);
+ {
+ gotoxy(5,11);
+ cprintf("-> Carry an umbrella, it's sunny out there.");
+ }
+ gotoxy(5,12);cprintf("-> It is going to be a pleasant day.");
+ gotoxy(5,13);cprintf("-> Activity- Everything that you do will go good.");
+
+}
+void HIGH(int Temp,int Int,int Acid)
+{
+ clrscr();
+ box(0); // lag in seconds
+ row(5,YELLOW,0);
+ gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+ gotoxy(7,9);cprintf("Things you have to do, in order to have a blast!!");
+  if(Acid<14)
+ {
+  gotoxy(5,11);
+  cprintf("-> It's raining out there, carry an umbrella with you.");
+ }
+   if(Int>600);
+ {
+  gotoxy(5,11);
+  cprintf("-> Carry an umbrella, it's sunny out there.");
+ }
+ gotoxy(5,12);cprintf("-> Wear Light coloured clothes, it's hot out there.");
+ gotoxy(5,13);cprintf("-> Do you really want to go out! (Only if urgent) ");
+
+}
+void VHIGH(int Temp,int Int,int Acid)
+{
+ clrscr();
+ box(0); // lag in seconds
+ row(5,YELLOW,0);
+ gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+ gotoxy(7,8);cprintf("Things you have to do, in order to have a blast!!");
+  if(Acid<14)
+ {
+  gotoxy(5,10);
+  cprintf("-> It's raining out there, carry an umbrella with you.");
+ }
+ gotoxy(5,11);cprintf("-> This is an unusual event, don't dare to go out and burn yourself.");
+ gotoxy(5,12);cprintf("-> ALERT!");
+}
+
+void main()
+{
+ clrscr();
+ int ch;
+   gotoxy(1,2);
+   box(10); // lag in seconds
+   row(5,YELLOW,0);
+   gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+ gotoxy(20,14); cout<<"WELCOME TO  LIVE WEATHER FORECAST SYSTEM";
+ getch();
+ start :
+ clrscr();
+   gotoxy(1,2);
+   box(0); // lag in seconds
+   row(5,YELLOW,0);
+   gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+ gotoxy(25,6);cprintf("1. SIGNUP");
+ gotoxy(25,8);cprintf("2. ACCOUNT DETAILS");
+ gotoxy(25,10);cprintf("3. ADMIN");
+ gotoxy(25,12);cprintf("4. LOGIN");
+ gotoxy(25,14);cprintf("5. EXIT");
+ gotoxy(25,16);cprintf("->");ch = getche() - 48;cout<<endl;
+ switch(ch)
+ {
+  case 1:
+  signup();
+  break;
+  case 2:
+  accdetails();
+  break;
+  case 3:
+  admin();
+  break;
+  case 4:
+  if(login())
+  access();
+  else
+  {
+  gotoxy(20,12);
+  cout<<"YOU HAVE TO BECOME A MEMBER FIRST ";
+  getch();
+  }
+  break;
+  case 5:
+  clrscr();
+   gotoxy(1,2);
+   box(0); // lag in seconds
+   row(5,YELLOW,0);
+   gotoxy(25,4);cprintf("LIVE  WEATHER  FORECAST  SYSTEM");
+  gotoxy(22,10);
+  cout<<"THANK YOU FOR USING OUR SERVICE";
+  gotoxy(25,12);
+  cout<<" Press 'ENTER' to exit";
+  getch();
+  return;
+ }
+goto start;
+}
+
+
